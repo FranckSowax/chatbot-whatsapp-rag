@@ -1,0 +1,340 @@
+[
+  {
+    "id": 1,
+    "title": "Setup Core Infrastructure and Authentication",
+    "status": "pending",
+    "details": "Set up Supabase project with PostgreSQL database, enable pgvector extension, configure Supabase Auth with role-based access control (global admin, account user, support user). Create Next.js frontend project with TypeScript and FastAPI backend with Python. Implement user registration, login, password reset flows. Set up database schemas for users, subscriptions, documents, and conversations with proper RLS policies for multi-tenant isolation. Configure environment variables and basic security settings including TLS certificates.",
+    "priority": "high",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Initialize Supabase Project and Database Configuration",
+        "status": "pending",
+        "details": "Create new Supabase project through dashboard, obtain project URL and anon/service role keys. Enable pgvector extension via SQL editor. Configure project settings including auth providers, RLS enforcement, and API rate limits. Set up environment variables for database connection strings, API keys, and JWT secrets. Configure TLS certificates and basic security headers.",
+        "description": "Create and configure the Supabase project with PostgreSQL database, enable pgvector extension for vector operations, and set up basic project settings including environment variables and security configurations.",
+        "dependencies": [],
+        "testStrategy": "Verify database connection, test pgvector extension functionality, validate environment variable loading and security configurations"
+      },
+      {
+        "id": 2,
+        "title": "Design and Implement Database Schema with RLS Policies",
+        "status": "pending",
+        "details": "Design tables: users (id, email, role, account_id, created_at), subscriptions (id, account_id, plan, status), documents (id, account_id, title, content, vector_embedding), conversations (id, account_id, user_id, messages). Create foreign key relationships and indexes for performance. Implement RLS policies ensuring users can only access data within their account_id scope. Set up triggers for automatic timestamp updates.",
+        "description": "Create comprehensive database schemas for users, subscriptions, documents, and conversations tables with proper relationships, indexes, and Row Level Security policies for multi-tenant data isolation.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Test RLS policies with different user contexts, verify cross-tenant data isolation, validate foreign key constraints and index performance"
+      },
+      {
+        "id": 3,
+        "title": "Configure Supabase Authentication with Role-Based Access Control",
+        "status": "pending",
+        "details": "Configure Supabase Auth settings including email confirmation, password requirements, and session management. Create custom user metadata fields for role and account_id assignment. Implement database functions and triggers to automatically assign roles during user registration. Set up RLS policies that respect user roles - global admins can access all data, account users only their account data, support users have read-only access to assigned accounts.",
+        "description": "Set up Supabase Auth with custom user roles (global admin, account user, support user) and implement role-based access control policies integrated with the database schema.",
+        "dependencies": [
+          2
+        ],
+        "testStrategy": "Test user registration with different roles, verify role-based data access restrictions, validate session management and token refresh flows"
+      },
+      {
+        "id": 4,
+        "title": "Create Next.js Frontend Project with TypeScript Setup",
+        "status": "pending",
+        "details": "Create Next.js project with TypeScript template, install and configure Supabase client library. Set up project structure with components, pages, hooks, and utils directories. Create Supabase client configuration with proper environment variables. Implement authentication context provider for managing user state. Set up basic routing with protected routes middleware. Install and configure additional dependencies like Tailwind CSS for styling and React Hook Form for form handling.",
+        "description": "Initialize Next.js frontend application with TypeScript configuration, Supabase client integration, and basic project structure including authentication components and routing setup.",
+        "dependencies": [
+          3
+        ],
+        "testStrategy": "Test Supabase client connection, verify TypeScript compilation, validate authentication context state management and protected route functionality"
+      },
+      {
+        "id": 5,
+        "title": "Develop FastAPI Backend and Implement Authentication Flows",
+        "status": "pending",
+        "details": "Initialize FastAPI project with proper directory structure (routers, models, services, middleware). Install dependencies including Supabase Python client, Pydantic for data validation, and FastAPI security utilities. Implement authentication middleware to validate Supabase JWT tokens. Create API endpoints for user registration, login, password reset, and profile management. Implement proper error handling, request validation, and response formatting. Set up CORS configuration for frontend integration.",
+        "description": "Create FastAPI backend application with Python, implement user registration, login, and password reset flows, and establish secure API endpoints with proper authentication middleware and error handling.",
+        "dependencies": [
+          4
+        ],
+        "testStrategy": "Unit tests for authentication endpoints, integration tests with Supabase Auth, end-to-end tests for complete authentication flows including error scenarios"
+      }
+    ],
+    "description": "Establish the foundational infrastructure including Supabase configuration, authentication system, and basic project structure for both frontend and backend components.",
+    "dependencies": [],
+    "testStrategy": "Unit tests for authentication flows, integration tests for Supabase connection, end-to-end tests for user registration and login processes. Verify RLS policies prevent cross-tenant data access."
+  },
+  {
+    "id": 2,
+    "title": "Implement PDF Management and Document Ingestion Pipeline",
+    "status": "pending",
+    "details": "Create drag-and-drop PDF upload interface in Next.js with file validation (≤20 MB, ≤200 pages, text-based PDF/A). Implement Supabase Storage integration for secure file persistence with owner_id tagging. Build background ingestion pipeline using Python workers to extract text from PDFs, generate embeddings using appropriate embedding models, and store vectors in pgvector. Implement job queue system for asynchronous processing with status tracking. Add document management UI for viewing uploaded files and ingestion status.",
+    "priority": "high",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Implement PDF Upload Interface with Validation",
+        "status": "pending",
+        "details": "Build React component with drag-and-drop functionality using react-dropzone. Implement client-side validation for file size, MIME type checking for PDF files. Add PDF page count validation using PDF-lib or similar library. Create user-friendly error messages and upload progress indicators. Style the interface with proper visual feedback for drag states.",
+        "description": "Create a drag-and-drop PDF upload interface in Next.js with comprehensive file validation including size limits (≤20 MB), page count limits (≤200 pages), and PDF/A format verification.",
+        "dependencies": [],
+        "testStrategy": "Unit tests for validation logic with various file types and sizes. Component testing for drag-and-drop interactions and error state handling."
+      },
+      {
+        "id": 2,
+        "title": "Integrate Supabase Storage for PDF Persistence",
+        "status": "pending",
+        "details": "Set up Supabase Storage bucket with appropriate RLS policies. Implement file upload API route in Next.js that handles authentication and associates files with owner_id. Create folder structure for organizing PDFs by user. Add metadata storage in Supabase database to track file information, upload timestamps, and processing status.",
+        "description": "Implement secure file storage using Supabase Storage with proper authentication, owner_id tagging, and file organization structure.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Integration tests for Supabase Storage operations. Test file upload with different user contexts and verify RLS policy enforcement."
+      },
+      {
+        "id": 3,
+        "title": "Build Background Job Queue System",
+        "status": "pending",
+        "details": "Set up job queue using Redis and Bull/BullMQ or similar queue system. Create job types for PDF processing pipeline. Implement job status tracking in database with states (pending, processing, completed, failed). Add retry logic for failed jobs and dead letter queue handling. Create API endpoints for job status queries.",
+        "description": "Implement asynchronous job queue system for processing PDF documents with status tracking and error handling capabilities.",
+        "dependencies": [
+          2
+        ],
+        "testStrategy": "Unit tests for job queue operations. Integration tests for job lifecycle management and status updates."
+      },
+      {
+        "id": 4,
+        "title": "Develop PDF Text Extraction and Vectorization Pipeline",
+        "status": "pending",
+        "details": "Build Python worker processes that consume jobs from the queue. Implement PDF text extraction using PyPDF2 or pdfplumber with error handling for corrupted files. Integrate embedding model (OpenAI embeddings or open-source alternatives like sentence-transformers). Chunk text appropriately for embedding generation. Store vectors in pgvector with proper indexing and metadata linking back to source documents.",
+        "description": "Create Python workers to extract text from uploaded PDFs and generate embeddings using appropriate embedding models for vector storage.",
+        "dependencies": [
+          3
+        ],
+        "testStrategy": "Unit tests for text extraction with various PDF formats. Integration tests for embedding generation and pgvector storage operations."
+      },
+      {
+        "id": 5,
+        "title": "Create Document Management UI",
+        "status": "pending",
+        "details": "Create React components for document listing with pagination and search functionality. Display document metadata, upload timestamps, and processing status with real-time updates. Implement document preview capabilities and download options. Add document deletion functionality with proper cleanup of associated vectors. Include status indicators and progress bars for ongoing processing jobs.",
+        "description": "Build user interface for viewing uploaded documents, monitoring ingestion status, and managing document lifecycle.",
+        "dependencies": [
+          4
+        ],
+        "testStrategy": "End-to-end tests for complete upload-to-display workflow. UI testing for real-time status updates and document management operations."
+      }
+    ],
+    "description": "Build the document upload system with validation, storage, and background processing pipeline for text extraction and vectorization.",
+    "dependencies": [
+      1
+    ],
+    "testStrategy": "Unit tests for file validation logic, integration tests for Supabase Storage operations, end-to-end tests for complete upload-to-vectorization workflow. Performance tests for large documents near size limits."
+  },
+  {
+    "id": 3,
+    "title": "Build ManyChat Integration and WhatsApp Webhook System",
+    "status": "pending",
+    "details": "Create ManyChat API integration for one-click template deployment. Build webhook endpoint in FastAPI that can acknowledge incoming messages in under 1 second with 'OK, bien reçu' response. Implement webhook validation and security measures. Create configuration UI for users to input ManyChat API keys and webhook URLs. Build outgoing message system to push responses back to ManyChat. Implement proper error handling and retry mechanisms with exponential backoff for API rate limits.",
+    "priority": "high",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Implement ManyChat API Integration Layer",
+        "status": "pending",
+        "details": "Build a ManyChat API client class with methods for authentication using API keys, template deployment, and sending messages. Implement proper error handling for API responses, rate limiting with exponential backoff (starting at 1s, max 60s), and connection timeout handling. Create data models for ManyChat templates and message formats. Include logging for all API interactions and implement retry logic for failed requests.",
+        "description": "Create the core ManyChat API integration module with authentication, template deployment capabilities, and outgoing message functionality",
+        "dependencies": [],
+        "testStrategy": "Unit tests for API client methods, mock API responses for error scenarios, integration tests with ManyChat sandbox environment"
+      },
+      {
+        "id": 2,
+        "title": "Build High-Performance WhatsApp Webhook Endpoint",
+        "status": "pending",
+        "details": "Create FastAPI endpoint with async handlers for incoming WhatsApp messages. Implement webhook signature validation using HMAC-SHA256. Add request payload validation and sanitization. Optimize response time by using async/await patterns and minimal processing in the main handler. Implement immediate 'OK, bien reçu' acknowledgment response within 200ms target. Add request logging and monitoring middleware for performance tracking.",
+        "description": "Develop FastAPI webhook endpoint optimized for sub-second response times with proper validation and security measures",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Performance tests to measure response times under load, security tests for webhook validation, load testing with concurrent requests"
+      },
+      {
+        "id": 3,
+        "title": "Create Configuration Management System",
+        "status": "pending",
+        "details": "Create secure configuration storage using environment variables and encrypted database fields for API keys. Build REST API endpoints for CRUD operations on configuration settings. Implement input validation for API keys and webhook URLs. Create web UI forms for users to input and manage their ManyChat credentials and webhook configurations. Add configuration testing functionality to verify API connectivity before saving settings.",
+        "description": "Build user interface and backend system for managing ManyChat API keys, webhook URLs, and integration settings",
+        "dependencies": [],
+        "testStrategy": "UI tests for configuration forms, API validation tests, security tests for credential storage"
+      },
+      {
+        "id": 4,
+        "title": "Implement Message Processing and Response System",
+        "status": "pending",
+        "details": "Create message processing service that receives webhook payloads and extracts relevant data. Implement message routing logic to determine appropriate responses. Build integration between webhook receiver and ManyChat API client for sending responses. Add message queuing system using Redis or similar for handling high-volume scenarios. Implement duplicate message detection and handling. Create message history tracking and audit logging.",
+        "description": "Build the core message processing pipeline that handles incoming WhatsApp messages and coordinates responses through ManyChat",
+        "dependencies": [
+          1,
+          2
+        ],
+        "testStrategy": "Integration tests for end-to-end message flow, duplicate detection tests, message queuing performance tests"
+      },
+      {
+        "id": 5,
+        "title": "Add Comprehensive Error Handling and Monitoring",
+        "status": "pending",
+        "details": "Add comprehensive exception handling with specific error types for different failure scenarios. Implement circuit breaker pattern for ManyChat API calls. Create health check endpoints for system monitoring. Add structured logging with correlation IDs for request tracking. Implement alerting for critical failures and performance degradation. Create retry queues for failed message processing with exponential backoff. Add metrics collection for response times, error rates, and throughput.",
+        "description": "Implement robust error handling, retry mechanisms, monitoring, and alerting across the entire integration system",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "testStrategy": "Error simulation tests, circuit breaker functionality tests, monitoring and alerting validation, retry mechanism tests"
+      }
+    ],
+    "description": "Develop the ManyChat template deployment system and webhook endpoint for handling incoming WhatsApp messages with sub-second acknowledgment requirements.",
+    "dependencies": [
+      1
+    ],
+    "testStrategy": "Performance tests to ensure sub-1-second acknowledgment times, integration tests with ManyChat API, webhook security validation tests, load testing for concurrent message handling."
+  },
+  {
+    "id": 4,
+    "title": "Implement RAG Workflow with Google Gemini Pro Integration",
+    "status": "pending",
+    "details": "Implement vector search functionality using pgvector to retrieve relevant document passages based on user queries with proper owner_id filtering for multi-tenant isolation. Integrate Google Gemini Pro 1.5 API for generating contextual responses based on retrieved passages. Build asynchronous processing pipeline that handles the complete workflow: receive question → vector search → context preparation → Gemini API call → response formatting → push to ManyChat. Implement proper error handling, timeout management, and fallback responses. Add conversation logging and context management for multi-turn conversations.",
+    "priority": "medium",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Implement Vector Search with Multi-tenant Filtering",
+        "status": "pending",
+        "details": "Create a vector search service that queries the pgvector-enabled database table. Implement cosine similarity search with configurable top-k results (default 5-10 passages). Add owner_id filtering to ensure tenant isolation. Include query preprocessing for better search accuracy (text normalization, stop word removal). Implement search result ranking and relevance scoring. Add database connection pooling and query optimization for performance.",
+        "description": "Build the vector search functionality using pgvector to retrieve relevant document passages based on user queries with proper owner_id filtering for multi-tenant data isolation.",
+        "dependencies": [],
+        "testStrategy": "Unit tests for search accuracy with known document-query pairs, tenant isolation tests to verify no cross-tenant data leakage, performance tests for sub-second search times"
+      },
+      {
+        "id": 2,
+        "title": "Integrate Google Gemini Pro 1.5 API Client",
+        "status": "pending",
+        "details": "Install and configure Google AI SDK for Gemini Pro 1.5. Implement API client with proper authentication using API keys or service account credentials. Add rate limiting and retry logic with exponential backoff. Implement timeout management (5-8 seconds max). Create response parsing and validation. Add fallback mechanisms for API failures. Configure model parameters (temperature, max_tokens, safety_settings) for optimal RAG responses.",
+        "description": "Set up and configure the Google Gemini Pro 1.5 API client with proper authentication, rate limiting, and error handling for generating contextual responses.",
+        "dependencies": [],
+        "testStrategy": "Integration tests with Gemini API using test prompts, error handling tests for various failure scenarios, rate limiting verification tests"
+      },
+      {
+        "id": 3,
+        "title": "Build Context Preparation and Prompt Engineering",
+        "status": "pending",
+        "details": "Design prompt templates that effectively combine user questions with retrieved document passages. Implement context window management to stay within Gemini's token limits. Create conversation history tracking and context management for multi-turn conversations. Add passage ranking and selection logic to choose the most relevant contexts. Implement prompt optimization techniques (few-shot examples, instruction clarity). Add context deduplication and passage summarization when needed.",
+        "description": "Create the context preparation module that formats retrieved passages into effective prompts for Gemini Pro, including conversation history management.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Unit tests for prompt formatting and context preparation, conversation flow tests for multi-turn scenarios, token limit compliance tests"
+      },
+      {
+        "id": 4,
+        "title": "Implement Asynchronous RAG Processing Pipeline",
+        "status": "pending",
+        "details": "Create async pipeline using asyncio or Celery for background processing. Implement the complete workflow: receive question → vector search → context preparation → Gemini API call → response formatting. Add comprehensive error handling with specific error types (search failures, API errors, timeouts). Implement circuit breaker pattern for API resilience. Add logging and monitoring at each pipeline stage. Create fallback responses for various failure scenarios. Ensure 3-8 second total response time target.",
+        "description": "Build the complete asynchronous workflow that orchestrates vector search, context preparation, Gemini API calls, and response formatting with proper error handling.",
+        "dependencies": [
+          1,
+          2,
+          3
+        ],
+        "testStrategy": "End-to-end workflow tests, error injection tests for each pipeline stage, performance tests to verify response time requirements, load testing for concurrent requests"
+      },
+      {
+        "id": 5,
+        "title": "Integrate ManyChat Push Notifications and Logging",
+        "status": "pending",
+        "details": "Integrate with ManyChat API to push formatted responses to users. Implement response formatting for ManyChat message structure (text, buttons, quick replies). Add conversation logging to database with user_id, question, retrieved_contexts, generated_response, and timestamps. Implement audit trails for debugging and analytics. Add response caching for frequently asked questions. Create monitoring dashboards for response times, success rates, and error tracking. Implement cleanup jobs for old conversation logs.",
+        "description": "Implement the final integration with ManyChat for pushing formatted responses and add comprehensive conversation logging for monitoring and debugging.",
+        "dependencies": [
+          4
+        ],
+        "testStrategy": "Integration tests with ManyChat API, logging verification tests, response formatting tests, monitoring and alerting validation tests"
+      }
+    ],
+    "description": "Build the core RAG (Retrieval Augmented Generation) system that performs vector search and generates contextual responses using Google Gemini Pro 1.5.",
+    "dependencies": [
+      2,
+      3
+    ],
+    "testStrategy": "Unit tests for vector search accuracy, integration tests with Gemini Pro API, end-to-end tests for complete RAG workflow, performance tests to ensure 3-8 second response times, tenant isolation verification tests."
+  },
+  {
+    "id": 5,
+    "title": "Build Dashboard Analytics and GDPR Compliance Features",
+    "status": "pending",
+    "details": "Build comprehensive dashboard UI showing request counts, average response times, conversation history, and customer satisfaction metrics. Implement billing and subscription management with tiered plans, usage tracking, overage calculations, and invoice generation. Create analytics visualization components for performance metrics and usage patterns. Implement GDPR compliance features including data export functionality, account deletion with 30-day purge timeline, consent management, and audit logging. Add conversation history export and search capabilities. Implement role-based UI components that respect user permissions.",
+    "priority": "medium",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Build Core Dashboard UI and Analytics Components",
+        "status": "pending",
+        "details": "Develop React/Vue components for dashboard layout, charts (using libraries like Chart.js or D3), metric cards, and data tables. Create API endpoints for fetching analytics data. Implement real-time updates for live metrics. Design responsive layouts for mobile and desktop views. Add filtering and date range selection capabilities.",
+        "description": "Create the main dashboard interface with analytics visualization components showing request counts, average response times, and performance metrics. Implement responsive UI components for displaying usage patterns and customer satisfaction metrics.",
+        "dependencies": [],
+        "testStrategy": "Unit tests for chart components, integration tests for analytics API endpoints, UI tests for responsive behavior and data visualization accuracy"
+      },
+      {
+        "id": 2,
+        "title": "Implement Billing and Subscription Management System",
+        "status": "pending",
+        "details": "Integrate with payment providers (Stripe/PayPal), create subscription models and pricing tiers, implement usage metering and overage calculations, build invoice generation system, create billing history views, add payment method management, implement subscription upgrade/downgrade flows, and handle failed payments with retry logic.",
+        "description": "Build comprehensive billing management with tiered subscription plans, usage tracking, overage calculations, and automated invoice generation. Include payment processing integration and subscription lifecycle management.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Unit tests for billing calculations, integration tests with payment providers, end-to-end tests for subscription workflows, mock payment testing for edge cases"
+      },
+      {
+        "id": 3,
+        "title": "Create Conversation History and Search Features",
+        "status": "pending",
+        "details": "Create database schema for conversation storage, implement full-text search with indexing, build conversation list and detail views, add filtering by date/status/user, implement conversation export (JSON/CSV formats), create pagination for large datasets, add conversation tagging and categorization features.",
+        "description": "Implement conversation history management with search capabilities, export functionality, and pagination. Build UI components for browsing, filtering, and managing conversation data.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Unit tests for search algorithms, integration tests for database queries, performance tests for large conversation datasets, UI tests for search and filter functionality"
+      },
+      {
+        "id": 4,
+        "title": "Implement GDPR Data Export and Consent Management",
+        "status": "pending",
+        "details": "Implement data export API that aggregates all user data (conversations, billing, analytics), create consent management UI with granular permissions, build audit logging system for all data operations, implement data portability in standard formats (JSON/XML), create privacy dashboard for users to manage their data preferences, add consent withdrawal mechanisms.",
+        "description": "Build GDPR compliance features including comprehensive data export functionality, consent management system, and audit logging. Create user-friendly interfaces for managing privacy preferences and data requests.",
+        "dependencies": [
+          2,
+          3
+        ],
+        "testStrategy": "Integration tests for complete data export, compliance verification tests for GDPR requirements, audit log validation tests, consent management workflow tests"
+      },
+      {
+        "id": 5,
+        "title": "Implement Account Deletion and Data Purge System",
+        "status": "pending",
+        "details": "Build account deletion workflow with confirmation steps, implement soft deletion with 30-day grace period, create automated purge system for expired deletions, ensure cascading deletion across all related data, implement role-based UI components that respect user permissions, add deletion audit trails, create admin tools for managing deletion requests, implement data anonymization for retained analytics.",
+        "description": "Create secure account deletion functionality with 30-day purge timeline, role-based access controls, and complete data removal processes. Implement soft deletion with recovery options and final purge automation.",
+        "dependencies": [
+          4
+        ],
+        "testStrategy": "End-to-end tests for complete deletion workflows, data retention policy verification tests, role-based access control tests, automated purge system tests, data anonymization validation"
+      }
+    ],
+    "description": "Create the user dashboard with analytics, billing management, and implement GDPR compliance features including data export and deletion capabilities.",
+    "dependencies": [
+      1,
+      4
+    ],
+    "testStrategy": "Unit tests for analytics calculations, integration tests for billing logic, end-to-end tests for GDPR data export/deletion workflows, UI tests for dashboard components, compliance verification tests for data retention policies."
+  }
+]
