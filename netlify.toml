@@ -4,7 +4,4 @@
   publish = ".next"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[context.production.environment]
-  NEXT_PUBLIC_API_URL = "https://votre-backend-url.onrender.com/api/v1" 
+  package = "@netlify/plugin-nextjs" 

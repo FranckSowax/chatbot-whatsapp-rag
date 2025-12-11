@@ -3,10 +3,23 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
+// Debug logging
+if (typeof window !== 'undefined') {
+  console.log('Supabase Config Check:', {
+    hasUrl: !!supabaseUrl,
+    urlLength: supabaseUrl.length,
+    hasKey: !!supabaseAnonKey,
+    keyLength: supabaseAnonKey.length,
+    envState: process.env.NODE_ENV
+  })
+}
+
 let supabase: SupabaseClient | null = null
 
 if (supabaseUrl && supabaseAnonKey) {
   supabase = createClient(supabaseUrl, supabaseAnonKey)
+} else {
+  console.error('Supabase configuration missing!', { supabaseUrl, supabaseAnonKey })
 }
 
 export { supabase }
