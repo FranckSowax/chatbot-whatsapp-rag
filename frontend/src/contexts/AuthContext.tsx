@@ -26,14 +26,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     if (!supabase) return
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    
-    if (data) {
-      setProfile(data as Profile)
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      if (error) {
+        console.error('Error fetching profile:', error)
+      }
+
+      if (data) {
+        setProfile(data as Profile)
+      }
+    } catch (err) {
+      console.error('Exception in fetchProfile:', err)
     }
   }
 
@@ -49,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
@@ -57,15 +66,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('access_token', session.access_token)
       }
       setLoading(false)
+    }).catch(err => {
+      console.error('Error getting session:', err)
+      setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
+        
         if (session?.user) {
-          await fetchProfile(session.user.id)
-          localStorage.setItem('access_token', session.access_token)
+          try {
+            await fetchProfile(session.user.id)
+            localStorage.setItem('access_token', session.access_token)
+          } catch (e) {
+            console.error('Error in auth state change profile fetch:', e)
+          }
         } else {
           setProfile(null)
           localStorage.removeItem('access_token')
@@ -80,7 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     if (!supabase) throw new Error('Supabase not configured')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+    if (error) {
+      console.error('Sign in error:', error)
+      throw error
+    }
   }
 
   const signUp = async (email: string, password: string, companyName: string) => {
@@ -89,13 +109,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error
     
     if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        company_name: companyName,
-        role: 'account_user',
-        chatbot_prompt: "Tu es un assistant client utile. Utilise UNIQUEMENT le contexte ci-dessous pour répondre à la question. Si la réponse n'est pas dans le contexte, dis poliment que tu ne sais pas."
-      })
+      // Create profile manually if trigger fails or just to be safe (though trigger is preferred)
+      // We rely on trigger usually, but let's see.
+      // Wait, if trigger handles it, we don't need this unless we want to add extra fields not handled by trigger.
+      // The trigger handles email and role. We need to add company_name.
+      try {
+         await supabase.from('profiles').update({
+           company_name: companyName,
+           // Ensure role is set if not by trigger, but trigger does it.
+         }).eq('id', data.user.id)
+      } catch (e) {
+         console.error('Error updating profile after signup:', e)
+      }
     }
   }
 
@@ -103,6 +128,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) return
     await supabase.auth.signOut()
     localStorage.removeItem('access_token')
+    setUser(null)
+    setProfile(null)
+    setSession(null)
   }
 
   return (

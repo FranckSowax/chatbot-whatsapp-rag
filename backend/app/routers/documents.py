@@ -52,8 +52,9 @@ async def upload_document(
         try:
             # 4. Upload to Gemini File Search Store
             # Use a unique name for Gemini file to avoid collisions if needed, or just filename
-            gemini_file_name = f"{current_user['id']}_{file.filename}"
-            gemini_service.upload_document(tmp_path, gemini_file_name, store_id)
+            # Note: We pass a display name, but we MUST store the returned resource name (files/xyz)
+            display_name = f"{current_user['id']}_{file.filename}"
+            gemini_file_resource_name = gemini_service.upload_document(tmp_path, display_name, store_id)
         finally:
             os.unlink(tmp_path)
         
@@ -63,7 +64,7 @@ async def upload_document(
             "filename": file.filename,
             "file_path": file_path,
             "status": "processed", # Gemini processing is synchronous in our service wrapper
-            "gemini_file_name": gemini_file_name
+            "gemini_file_name": gemini_file_resource_name
         }).execute()
         
         document_id = doc_response.data[0]["id"]
