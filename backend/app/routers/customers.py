@@ -2,10 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends, Header
 from app.models.schemas import UserProfile, ProfileUpdate, ChatbotPromptUpdate
 from app.database import get_supabase
 from app.services.auth_service import get_current_user
+from app.services.manychat_service import validate_manychat_api_key
+from app.config import get_settings
 from supabase import Client
 from uuid import UUID
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
+settings = get_settings()
 
 
 @router.get("/me", response_model=UserProfile)
@@ -27,9 +30,17 @@ async def update_profile(
     supabase: Client = Depends(get_supabase)
 ):
     try:
+        # Validate ManyChat Key if provided
+        if profile_update.manychat_api_key:
+             is_valid = await validate_manychat_api_key(profile_update.manychat_api_key)
+             if not is_valid:
+                 raise HTTPException(status_code=400, detail="Invalid ManyChat API Key. Please check your token.")
+
         update_data = profile_update.model_dump(exclude_unset=True)
         response = supabase.table("profiles").update(update_data).eq("id", current_user["id"]).execute()
         return {"message": "Profile updated successfully", "data": response.data}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -42,7 +53,11 @@ async def get_webhook_url(
     try:
         response = supabase.table("profiles").select("id, api_key_generee").eq("id", current_user["id"]).single().execute()
         api_key = response.data.get("api_key_generee") or current_user["id"]
-        webhook_url = f"https://api.votre-saas.com/webhook/incoming?client_api_key={api_key}"
+        
+        # Use configured public API URL
+        base_url = settings.public_api_url.rstrip('/')
+        webhook_url = f"{base_url}/api/v1/webhook/incoming?client_api_key={api_key}"
+        
         return {"webhook_url": webhook_url}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     gemini_api_key: str
     jwt_secret: str = "your-jwt-secret-key"
     redis_url: str = "redis://localhost:6379"
+    public_api_url: str = "http://localhost:8000"  # URL accessible from outside (e.g., ngrok or production domain)
     
     class Config:
         env_file = ".env"
