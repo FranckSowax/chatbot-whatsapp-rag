@@ -1,4 +1,25 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const getBaseUrl = () => {
+  let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  
+  // Ensure protocol
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `https://${url}`
+  }
+  
+  // Remove trailing slash
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1)
+  }
+  
+  // Remove /api/v1 if present (we add it later)
+  if (url.endsWith('/api/v1')) {
+    url = url.slice(0, -7)
+  }
+  
+  return url
+}
+
+const API_URL = getBaseUrl()
 
 async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
